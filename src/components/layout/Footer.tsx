@@ -40,7 +40,7 @@ export function Footer() {
             </div>
             <div>
               <h4 className="text-white text-sm font-semibold mb-1">Удобная оплата</h4>
-              <p className="text-xs text-slate-400">Карты Uzum/Payme/Click, наличными или YooMoney (тест)</p>
+              <p className="text-xs text-slate-400">Карты Uzum/Payme/Click, наличными или Stripe (тест)</p>
             </div>
           </div>
         </div>

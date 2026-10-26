@@ -51,6 +51,55 @@ export default function LoginPage() {
     }
   };
 
+  const initGoogleButton = () => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    if (!window.google?.accounts?.id || !clientId) return;
+
+    try {
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: handleGoogleCallback,
+        auto_select: false,
+      });
+
+      const btnContainer = document.getElementById("googleBtnContainer");
+      if (btnContainer) {
+        window.google.accounts.id.renderButton(btnContainer, {
+          theme: "outline",
+          size: "large",
+          width: btnContainer.offsetWidth || 340,
+          text: "signin_with",
+          shape: "rectangular",
+          locale: "ru",
+        });
+      }
+    } catch (e) {
+      console.warn("Google button init error:", e);
+    }
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const tryInit = () => {
+      if (cancelled) return;
+      if (window.google?.accounts?.id) {
+        initGoogleButton();
+        return;
+      }
+      const t = setTimeout(tryInit, 150);
+      return () => clearTimeout(t);
+    };
+
+    // Small delay so DOM is fully painted before Google measures container width
+    const timer = setTimeout(tryInit, 200);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,25 +116,7 @@ export default function LoginPage() {
       <Script
         src="https://accounts.google.com/gsi/client"
         strategy="afterInteractive"
-        onLoad={() => {
-          if (window.google?.accounts?.id && process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) {
-            window.google.accounts.id.initialize({
-              client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-              callback: handleGoogleCallback,
-              auto_select: false,
-            });
-            const btnContainer = document.getElementById("googleBtnContainer");
-            if (btnContainer) {
-              window.google.accounts.id.renderButton(btnContainer, {
-                theme: "outline",
-                size: "large",
-                width: 340,
-                text: "signin_with",
-                shape: "rectangular",
-              });
-            }
-          }
-        }}
+        onLoad={initGoogleButton}
       />
 
       <div className="max-w-md mx-auto py-12">
@@ -117,9 +148,7 @@ export default function LoginPage() {
           )}
 
           {/* Google Sign-In Official Button */}
-          <div className="flex justify-center w-full min-h-[44px]">
-            <div id="googleBtnContainer" className="flex justify-center w-full" />
-          </div>
+          <div id="googleBtnContainer" style={{ minHeight: 44 }} />
 
           <div className="relative flex items-center justify-center">
             <div className="border-t border-[#D9E7E8] w-full" />

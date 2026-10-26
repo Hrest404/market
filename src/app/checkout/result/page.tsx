@@ -10,7 +10,7 @@ function ResultContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get("orderNumber") || "APX-849201";
   const total = Number(searchParams.get("total")) || 16950000;
-  const method = searchParams.get("method") || "yoomoney";
+  const method = searchParams.get("method") || "stripe";
 
   return (
     <div className="max-w-xl mx-auto py-8">
@@ -39,14 +39,14 @@ function ResultContent() {
           <div className="flex justify-between text-slate-600">
             <span>Способ оплаты:</span>
             <span className="font-semibold text-[#25252B]">
-              {method === "yoomoney" ? "YooMoney (Тестовый платеж)" : "Оплата курьеру при получении"}
+              {method === "stripe" ? "Оплата картой (Stripe)" : "Оплата курьеру при получении"}
             </span>
           </div>
           <div className="flex justify-between text-slate-600">
             <span>Статус оплаты:</span>
             <span className="font-semibold text-[#375E6A] flex items-center gap-1">
               <Sparkle size={12} weight="fill" />
-              Подтверждено (Тестовый режим)
+              {method === "stripe" ? "Оплачено онлайн (Stripe)" : "Ожидает оплаты курьеру"}
             </span>
           </div>
         </div>

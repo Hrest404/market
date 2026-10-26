@@ -14,7 +14,7 @@ export default function CheckoutPage() {
   const [name, setName] = useState("Тимур Алиев");
   const [phone, setPhone] = useState("+998 90 123-45-67");
   const [address, setAddress] = useState("г. Ташкент, Мирзо-Улугбекский р-н, ул. Паркентская, д. 21, кв. 45");
-  const [paymentMethod, setPaymentMethod] = useState<"yoomoney" | "cash">("yoomoney");
+  const [paymentMethod, setPaymentMethod] = useState<"stripe" | "cash">("stripe");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const deliveryFee = cartTotal > 10000000 || cartTotal === 0 ? 0 : 50000;
@@ -47,23 +47,28 @@ export default function CheckoutPage() {
         }),
       });
 
-      // 2. Если выбран YooMoney, инициируем платеж через серверный шлюз
-      if (paymentMethod === "yoomoney") {
-        const paymentRes = await fetch("/api/payments/yoomoney/create", {
+      // 2. Если выбран Stripe — создаём Checkout Session и редиректим
+      if (paymentMethod === "stripe") {
+        const paymentRes = await fetch("/api/payments/stripe/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             orderId: orderNumber,
             amountUzs: finalTotal,
-            description: `Оплата заказа ${orderNumber} в магазине APEX TECH`,
+            description: `Заказ ${orderNumber} — APEX TECH`,
+            items: cart.map((item) => ({
+              name: item.product.name,
+              priceUzs: item.product.priceUzs,
+              quantity: item.quantity,
+            })),
           }),
         });
 
         const paymentData = await paymentRes.json();
         clearCart();
 
-        if (paymentData.confirmationUrl) {
-          window.location.href = paymentData.confirmationUrl;
+        if (paymentData.url) {
+          window.location.href = paymentData.url;
           return;
         }
       }
@@ -183,14 +188,14 @@ export default function CheckoutPage() {
                 Способ оплаты
               </h2>
               <span className="text-[11px] font-semibold text-[#375E6A] bg-[#D9E7E8]/50 px-2.5 py-1 rounded-full border border-[#D9E7E8]">
-                🛡 Тестовый режим оплаты
+                🔒 Безопасная оплата
               </span>
             </div>
 
             <div className="space-y-3">
               <label
                 className={`flex items-start gap-3 p-4 rounded-2xl border cursor-pointer transition ${
-                  paymentMethod === "yoomoney"
+                  paymentMethod === "stripe"
                     ? "border-[#528A9A] bg-[#D9E7E8]/20"
                     : "border-slate-200 hover:border-slate-300"
                 }`}
@@ -198,19 +203,19 @@ export default function CheckoutPage() {
                 <input
                   type="radio"
                   name="payment"
-                  checked={paymentMethod === "yoomoney"}
-                  onChange={() => setPaymentMethod("yoomoney")}
+                  checked={paymentMethod === "stripe"}
+                  onChange={() => setPaymentMethod("stripe")}
                   className="mt-1 text-[#528A9A] focus:ring-[#528A9A]"
                 />
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-[#25252B]">YooMoney (Тестовый платеж)</span>
-                    <span className="px-2 py-0.5 rounded-full bg-[#D9E7E8] text-[#375E6A] text-[10px] font-semibold">
-                      Демо-касса
-                    </span>
+                    <svg className="w-10 h-5 shrink-0" viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M28.3 9.3c0-1 .8-1.3 2.2-1.3 2 0 4.4.6 6.4 1.6V4.3c-2.1-.8-4.3-1.2-6.4-1.2-5.2 0-8.7 2.7-8.7 7.2 0 7 9.7 5.9 9.7 9 0 1.1-1 1.5-2.5 1.5-2.2 0-5-.9-7.2-2.1v5.4c2.5 1.1 5 1.5 7.2 1.5 5.4 0 9.1-2.7 9.1-7.2-.1-7.6-9.8-6.2-9.8-9.1z" fill="#6772E5"/>
+                    </svg>
+                    <span className="text-sm font-bold text-[#25252B]">Оплата картой (Stripe)</span>
                   </div>
                   <p className="text-xs text-slate-500 mt-1">
-                    Серверное создание тестового платежа, безопасная проверка статуса и поддержка вебхуков.
+                    Visa, Mastercard, Uzcard / Humo (через международный шлюз). Безопасный платёж Stripe.
                   </p>
                 </div>
               </label>
@@ -294,7 +299,7 @@ export default function CheckoutPage() {
             className="w-full py-4 rounded-xl bg-[#528A9A] hover:bg-[#437381] text-white font-bold text-sm transition shadow-lg shadow-[#528A9A]/20 disabled:opacity-50 flex items-center justify-center gap-2"
           >
             <Lock size={16} weight="bold" />
-            {isSubmitting ? "Обработка платежа..." : "Оплатить (Тест) и подтвердить"}
+            {isSubmitting ? "Обработка платежа..." : "Оплатить и подтвердить заказ"}
           </button>
         </div>
       </form>
