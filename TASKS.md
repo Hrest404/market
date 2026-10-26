@@ -60,6 +60,46 @@
 
 ### 2.7. Авторизация и Личный кабинет (`/login`, `/register`, `/account`)
 - [x] Страницы входа и регистрации (email/пароль + кнопка Google OAuth).
+- [ ] **Чеклист: Подключение реального входа «Войти с помощью Google» (Google Identity Services / OAuth 2.0)**:
+  - [ ] **Шаг 1. Создание проекта в Google Cloud Console:**
+    - Перейти на [Google Cloud Console](https://console.cloud.google.com/).
+    - Создать новый проект (или выбрать существующий) — например, `market-apex-tech`.
+  - [ ] **Шаг 2. Настройка OAuth Consent Screen (Экран согласия OAuth):**
+    - В левом меню перейти в **APIs & Services** → **OAuth consent screen**.
+    - Выбрать тип: **External** (Внешний) и нажать *Create*.
+    - Заполнить обязательные поля:
+      - *App name*: Название приложения (например, `Apex Tech`).
+      - *User support email*: ваш email.
+      - *Developer contact information*: ваш email.
+    - В секции **Scopes** (Области доступа) добавить: `.../auth/userinfo.email` и `.../auth/userinfo.profile`.
+    - В секции **Test users** (Тестовые пользователи) добавить свой Google email (пока приложение в режиме *Testing*).
+    - Сохранить форму.
+  - [ ] **Шаг 3. Создание учетных данных OAuth 2.0 Client ID:**
+    - Перейти в **APIs & Services** → **Credentials**.
+    - Нажать **+ CREATE CREDENTIALS** → выбрать **OAuth client ID**.
+    - Выбрать *Application type*: **Web application**.
+    - Название: `Apex Tech Web Client`.
+    - **Authorized JavaScript origins** (Разрешенные источники JavaScript):
+      - `http://localhost:3000` (для локальной разработки)
+      - `https://your-project.vercel.app` (ваш домен на Vercel)
+    - **Authorized redirect URIs** (Разрешенные URI перенаправления):
+      - `http://localhost:3000/api/auth/google`
+      - `https://your-project.vercel.app/api/auth/google`
+    - Нажать **Create** и скопировать:
+      - `Client ID` (вида `xxxxxx.apps.googleusercontent.com`)
+      - `Client Secret` (секретный ключ клиента)
+  - [ ] **Шаг 4. Установка переменных окружения:**
+    - В локальном файле `.env.local`:
+      ```env
+      GOOGLE_CLIENT_ID="ваш-client-id.apps.googleusercontent.com"
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID="ваш-client-id.apps.googleusercontent.com"
+      GOOGLE_CLIENT_SECRET="ваш-client-secret"
+      ```
+    - В панели **Vercel** (**Project Settings → Environment Variables**) добавить эти же переменные для Production/Preview.
+  - [ ] **Шаг 5. Проверка работы:**
+    - Открыть `/login` в браузере.
+    - Нажать «Войти через Google» (всплывет стандартное окно One Tap или окно выбора Google-аккаунта).
+    - Убедиться, что токен проходит серверную валидацию через `OAuth2Client` в `/api/auth/google`, профиль сохраняется в Neon PostgreSQL, и происходит редирект в `/account`.
 - [x] Личный кабинет пользователя: данные профиля, история оформленных заказов с трекингом статусов, сохраненные адреса доставки.
 
 ### 2.8. Адаптивность и финальная полировка веб-версии

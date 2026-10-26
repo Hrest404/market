@@ -56,9 +56,18 @@ export default function LoginPage() {
     setLoading(true);
     setAuthError("");
     try {
-      // Create a test JWT payload simulating Google credential
-      const demoHeader = btoa(JSON.stringify({ alg: "RS256", typ: "JWT" }));
-      const demoPayload = btoa(
+      // Create a test JWT payload simulating Google credential (UTF-8 safe base64)
+      const toBase64 = (str: string) => {
+        const bytes = new TextEncoder().encode(str);
+        let binary = "";
+        for (let i = 0; i < bytes.length; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary);
+      };
+
+      const demoHeader = toBase64(JSON.stringify({ alg: "RS256", typ: "JWT" }));
+      const demoPayload = toBase64(
         JSON.stringify({
           sub: "google_oauth_1092837461928",
           name: "Азиз Каримов",
