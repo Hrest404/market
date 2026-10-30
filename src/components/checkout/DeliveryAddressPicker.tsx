@@ -85,8 +85,8 @@ export default function DeliveryAddressPicker({
 
       L.control.zoom({ position: "bottomright" }).addTo(map);
 
-      // Стилизованные тайлы OpenStreetMap CartoDB Positron (чистый аккуратный дизайн под доставку)
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+      // Бесплатные стабильные тайлы OpenStreetMap без API-ключа
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 19,
       }).addTo(map);
