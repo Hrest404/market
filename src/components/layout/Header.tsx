@@ -45,8 +45,13 @@ export function Header() {
             </span>
           </div>
           <div className="flex items-center gap-4 text-xs font-medium text-slate-400">
-            <span>Гарантия 12 месяцев</span>
-            <span className="hidden md:inline">Оригинальная продукция</span>
+            <Link 
+              href="/presentation" 
+              className="text-amber-300 hover:text-amber-200 flex items-center gap-1 font-semibold transition"
+            >
+              <span>🎬 Презентация проекта</span>
+            </Link>
+            <span className="hidden md:inline">Гарантия 12 месяцев</span>
           </div>
         </div>
       </div>
