@@ -3,9 +3,22 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Lock, CreditCard, ShieldCheck } from "@phosphor-icons/react";
 import { useStore } from "@/lib/store-context";
 import { formatPrice } from "@/lib/utils";
+
+const DeliveryAddressPicker = dynamic(
+  () => import("@/components/checkout/DeliveryAddressPicker"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-64 rounded-2xl bg-slate-100 animate-pulse flex items-center justify-center text-xs text-slate-400">
+        Загрузка карты Ташкента...
+      </div>
+    ),
+  }
+);
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -160,22 +173,13 @@ export default function CheckoutPage() {
               <span className="w-6 h-6 rounded-full bg-[#D9E7E8] text-[#375E6A] text-xs flex items-center justify-center font-bold">
                 2
               </span>
-              Адрес доставки в Ташкенте
+              Адрес доставки в Ташкенте (выбор на карте)
             </h2>
 
-            <div>
-              <label className="text-xs font-semibold text-slate-700 block mb-1">
-                Улица, дом, квартира / ориентир
-              </label>
-              <textarea
-                required
-                rows={3}
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="г. Ташкент, ул. ..."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#F5F8F8] border border-[#D9E7E8] text-sm focus:outline-none focus:border-[#528A9A]"
-              />
-            </div>
+            <DeliveryAddressPicker
+              initialAddress={address}
+              onAddressSelect={(fullAddress) => setAddress(fullAddress)}
+            />
           </div>
 
           {/* Payment Method */}
